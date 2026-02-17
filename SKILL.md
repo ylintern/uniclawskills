@@ -1,24 +1,92 @@
 ---
-name: uniclaw
-description: UniClaw - The Uniswap LP Quant Framework. Master V3/V4 liquidity pool analysis with institutional-grade risk assessment, volatility modeling, Monte Carlo simulation, fee accounting, and automated position management. Open source skill for professional LP operators.
-version: 1.0.0
+name: uniclaw-skill
+description: The AMM quant knowledge base for UniClaw. Pure technical knowledge — tick math, fee accounting, IL, backtesting, risk frameworks, Hummingbot integration, V3/V4 mechanics, and the self-learning protocol for skill creation and improvement. Identity and soul live in IDENTITY.md. Role skills live in skills/.
+version: 2.0.0
 license: MIT
-repository: https://github.com/your-org/uniclaw-skill
+author: "@bioxbt"
 ---
 
-# 🦞 UniClaw - Uniswap LP Quant Framework
+# 🦞 UniClaw — AMM Quant Knowledge Base
 
-**The professional-grade skill for Uniswap V3/V4 liquidity provision.**
+> This file is WHAT UniClaw knows.
+> WHO UniClaw is → read IDENTITY.md
+> Role skills for sub-agents → read skills/[role].md
 
-You are **UniClaw**, the AMM Quant Architect - a specialized agent that combines quantitative finance with DeFi LP management. You design mathematically precise, risk-adjusted execution strategies for liquidity provision.
+---
 
-## Core Mission
+## Skill Architecture
 
-Optimize the LP lifecycle:
-1. **Analyze** - Read pool state, calculate metrics
-2. **Account** - Track fees, compute IL and ROI
-3. **Strategize** - Determine when/how to reallocate
-4. **Execute** - Generate transaction calldata
+```
+IDENTITY.md           ← Soul, Sensei, GSD framework, trust levels
+SKILL.md              ← This file. Core quant knowledge. Self-learning protocol.
+STATE.md              ← Live snapshot. Read first every session.
+skills/
+  ├── lp-manager.md       ← LP position management role
+  ├── strategist.md       ← Strategy design and validation role
+  ├── backtester.md       ← Historical simulation and analysis role
+  ├── swap-arb.md         ← Swap routing and arbitrage role
+  └── sentiment-analyst.md ← On-chain signals and market context role
+```
+
+Skills are **roles**, not topics. Each maps to a sub-agent type.
+Each can be independently improved over time through research and backtesting.
+
+---
+
+## Self-Learning Protocol
+
+UniClaw improves itself through a structured cycle:
+
+```
+OBSERVE → HYPOTHESIZE → BACKTEST → PROPOSE → (Sensei approves) → IMPROVE
+```
+
+### Improvement Triggers
+
+- Backtest reveals a technique outperforms current approach by >5%
+- New pool type or market regime not covered by existing skill
+- Sub-agent returns a result that exposes a knowledge gap
+- Sensei introduces a new concept or tool
+
+### Skill Creation — When to Make a New Skill File
+
+Create a new skill file in `skills/` when:
+1. A sub-agent role doesn't have a dedicated skill yet
+2. An existing skill has grown too broad and needs splitting
+3. A new domain is needed (e.g. a new chain, a new DEX)
+
+**Never create topic-based skills.** Skills map to roles.
+
+```
+BAD:  skills/volatility-models.md   ← topic, not a role
+BAD:  skills/fee-accounting.md      ← topic, not a role
+GOOD: skills/backtester.md          ← role — improves over time
+GOOD: skills/lp-manager.md         ← role — improves over time
+```
+
+### Skill Improvement Cycle
+
+When UniClaw finds an improvement:
+
+```
+SKILL IMPROVEMENT REQUEST
+──────────────────────────
+Skill:     skills/[role].md
+Version:   current → proposed
+Trigger:   [What observation caused this]
+Evidence:  [Backtest results, comparison, data]
+Change:    [Exactly what to add/modify/remove]
+Risk:      [Low / Medium / High]
+Status:    AWAITING SENSEI APPROVAL
+```
+
+After Sensei approves:
+1. Skill Builder Agent implements the change
+2. Backtester Agent validates on historical data
+3. Version bumped in the skill file header
+4. Result logged in DECISIONS.md
+
+---
 
 ## Knowledge Domains
 
@@ -1100,15 +1168,589 @@ function multiHopSwap() external {
 }
 ```
 
-## Key Takeaways
 
-- **Precision is paramount**: Use Decimal, floor() ticks, check tickSpacing
-- **Gas matters**: Don't reallocate unless fees > 3x gas cost
-- **IL is real**: Always report net profit (fees - IL - gas)
-- **Automation is king**: Generate exact calldata, not just suggestions
-- **V3 = manual, V4 = hooks**: Understand the execution model difference
+---
 
-Your role is to be the **execution brain** that turns LP theory into profitable, gas-efficient reality.
+## Hummingbot Integration
+
+### Architecture Overview
+
+UniClaw integrates with Hummingbot via three layers:
+
+```
+Claude (UniClaw skill)
+    │
+    ├── Hummingbot MCP Server  ←── Natural language → API calls
+    │       │
+    │       └── Hummingbot API (localhost:8000)
+    │               │
+    │               └── Gateway (DEX Middleware)
+    │                       │
+    │                       └── Uniswap V3/V4 (on-chain)
+```
+
+### MCP Setup (Connect Claude to Hummingbot)
+
+```json
+// Add to Claude's MCP config (~/.claude/mcp_settings.json)
+{
+  "mcpServers": {
+    "hummingbot-mcp": {
+      "type": "stdio",
+      "command": "docker",
+      "args": [
+        "run", "--rm", "-i",
+        "--network", "host",
+        "--env-file", "/path/to/.env",
+        "hummingbot/hummingbot-mcp:latest"
+      ]
+    }
+  }
+}
+```
+
+```bash
+# .env file
+HUMMINGBOT_API_URL=http://localhost:8000
+HUMMINGBOT_USERNAME=admin
+HUMMINGBOT_PASSWORD=admin
+```
+
+### Gateway CLMM Endpoints (V3 Concentrated Liquidity)
+
+All on-chain position management goes through these Gateway endpoints:
+
+```python
+GATEWAY_BASE = "http://localhost:15888"
+CLMM_BASE = f"{GATEWAY_BASE}/connectors/uniswap/clmm"
+
+ENDPOINTS = {
+    # READ (Phase 1 - Analyst sub-agent)
+    "pool_info":        f"{CLMM_BASE}/pool-info",
+    "position_info":    f"{CLMM_BASE}/position-info",
+    "positions_owned":  f"{CLMM_BASE}/positions-owned",
+    "quote_position":   f"{CLMM_BASE}/quote-position",
+
+    # EXECUTE (Phase 4 - Executor sub-agent)
+    "open_position":    f"{CLMM_BASE}/open-position",
+    "close_position":   f"{CLMM_BASE}/close-position",
+    "add_liquidity":    f"{CLMM_BASE}/add-liquidity",
+    "remove_liquidity": f"{CLMM_BASE}/remove-liquidity",
+    "collect_fees":     f"{CLMM_BASE}/collect-fees",
+
+    # SWAP (for rebalancing token ratios)
+    "quote_swap":       f"{CLMM_BASE}/quote-swap",
+    "execute_swap":     f"{CLMM_BASE}/execute-swap",
+}
+```
+
+### Phase 1: ANALYZE (Analyst Sub-Agent)
+
+```python
+import httpx
+from decimal import Decimal
+
+async def analyze_pool(chain: str, connector: str, token0: str, token1: str, fee: int):
+    """
+    Sub-agent: Analyst
+    Reads current pool state via Hummingbot Gateway.
+    """
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(
+            ENDPOINTS["pool_info"],
+            params={
+                "chain": chain,          # e.g. "ethereum"
+                "connector": connector,  # e.g. "uniswap"
+                "token0": token0,        # e.g. "ETH"
+                "token1": token1,        # e.g. "USDC"
+                "fee": fee               # e.g. 3000
+            }
+        )
+        pool = resp.json()
+
+    return {
+        "sqrtPriceX96": pool["sqrtPriceX96"],
+        "tick": pool["tick"],
+        "liquidity": pool["liquidity"],
+        "feeGrowthGlobal0X128": pool["feeGrowthGlobal0X128"],
+        "feeGrowthGlobal1X128": pool["feeGrowthGlobal1X128"],
+        "price": (int(pool["sqrtPriceX96"]) / 2**96) ** 2,
+    }
+
+async def get_all_positions(chain: str, connector: str, address: str):
+    """
+    Sub-agent: Analyst
+    Get all LP positions owned by an address.
+    """
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(
+            ENDPOINTS["positions_owned"],
+            params={
+                "chain": chain,
+                "connector": connector,
+                "address": address
+            }
+        )
+    return resp.json()["positions"]
+
+async def get_position_detail(chain: str, connector: str, token_id: int):
+    """
+    Sub-agent: Analyst + Accountant
+    Detailed position info including unclaimed fees.
+    """
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(
+            ENDPOINTS["position_info"],
+            params={
+                "chain": chain,
+                "connector": connector,
+                "tokenId": token_id
+            }
+        )
+    pos = resp.json()
+    return {
+        "tokenId": token_id,
+        "tickLower": pos["tickLower"],
+        "tickUpper": pos["tickUpper"],
+        "liquidity": pos["liquidity"],
+        "feeGrowthInside0LastX128": pos["feeGrowthInside0LastX128"],
+        "feeGrowthInside1LastX128": pos["feeGrowthInside1LastX128"],
+        "tokensOwed0": pos["tokensOwed0"],
+        "tokensOwed1": pos["tokensOwed1"],
+        "amount0": pos["amount0"],     # Current token0 in position
+        "amount1": pos["amount1"],     # Current token1 in position
+    }
+```
+
+### Phase 2: ACCOUNT (Accountant Sub-Agent)
+
+```python
+async def account_position(chain, connector, token_id, entry_price, token0_price_usd):
+    """
+    Sub-agent: Accountant
+    Computes complete P&L: fees, IL, net profit.
+    """
+    # Get position data
+    pos = await get_position_detail(chain, connector, token_id)
+    pool = await analyze_pool(chain, connector, pos["token0"], pos["token1"], pos["fee"])
+
+    current_price = pool["price"]
+
+    # Calculate unclaimed fees
+    fees0, fees1 = calculate_unclaimed_fees(pos, pool, ...)
+    fees_usd = (fees0 * token0_price_usd) + fees1  # token1 = USDC
+
+    # Calculate IL
+    il = calculate_impermanent_loss(entry_price, current_price, pos["amount0"], pos["amount1"])
+
+    # Net ROI
+    net_profit = fees_usd - abs(il["il_percentage"] / 100 * (pos["amount0"] * token0_price_usd + pos["amount1"]))
+
+    return {
+        "fees_usd": fees_usd,
+        "il_pct": il["il_percentage"],
+        "net_profit": net_profit,
+        "position_value": pos["amount0"] * token0_price_usd + pos["amount1"],
+        "current_tick": pool["tick"],
+        "in_range": pos["tickLower"] <= pool["tick"] < pos["tickUpper"],
+    }
+```
+
+### Phase 3: STRATEGIZE (Strategist Sub-Agent)
+
+```python
+async def strategize(account_data, position, pool, volatility_annual, gas_cost_usd=15):
+    """
+    Sub-agent: Strategist
+    Runs backtest, scores risk, returns decision.
+
+    Returns:
+        action: HOLD | COLLECT_AND_COMPOUND | RECENTER | EXIT
+        new_range: (tickLower, tickUpper) if recentering
+        confidence: 0-100
+        reasoning: str
+    """
+    # Risk assessment
+    risk = calculate_comprehensive_risk_score(
+        current_price=pool["price"],
+        tick_lower=position["tickLower"],
+        tick_upper=position["tickUpper"],
+        volatility_annual=volatility_annual,
+        position_value=account_data["position_value"],
+        entry_price=position["entry_price"],
+        price_history=[]
+    )
+
+    # Decision logic
+    fees_usd = account_data["fees_usd"]
+    in_range = account_data["in_range"]
+
+    # Trigger 1: Out of range
+    if not in_range:
+        new_tick_lower, new_tick_upper = calculate_optimal_range(
+            pool["price"], volatility_annual
+        )["tickLower"], calculate_optimal_range(pool["price"], volatility_annual)["tickUpper"]
+        return {
+            "action": "RECENTER",
+            "new_range": (new_tick_lower, new_tick_upper),
+            "confidence": 90,
+            "reasoning": "Position out of range. Not earning fees. Recenter immediately.",
+            "risk_score": risk["overall_score"]
+        }
+
+    # Trigger 2: High exit risk
+    if risk["overall_score"] < 40:
+        return {
+            "action": "RECENTER",
+            "new_range": calculate_optimal_range(pool["price"], volatility_annual),
+            "confidence": 80,
+            "reasoning": f"Risk score {risk['overall_score']}/100 - too low. Proactive rebalance.",
+            "risk_score": risk["overall_score"]
+        }
+
+    # Trigger 3: Fees ready to compound
+    if fees_usd > account_data["position_value"] * 0.05 and fees_usd > gas_cost_usd * 3:
+        return {
+            "action": "COLLECT_AND_COMPOUND",
+            "confidence": 85,
+            "reasoning": f"Fees ${fees_usd:.2f} = {fees_usd/account_data['position_value']*100:.1f}% of position. Gas justified.",
+            "risk_score": risk["overall_score"]
+        }
+
+    # Default: Hold
+    return {
+        "action": "HOLD",
+        "confidence": 70,
+        "reasoning": f"Position healthy. Risk score {risk['overall_score']}/100. Monitor.",
+        "risk_score": risk["overall_score"]
+    }
+```
+
+### Phase 4: EXECUTE (Executor Sub-Agent)
+
+```python
+async def execute_collect_fees(chain, connector, token_id, address):
+    """
+    Sub-agent: Executor
+    Collect all accumulated fees.
+
+    Maps to: POST /connectors/uniswap/clmm/collect-fees
+    """
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            ENDPOINTS["collect_fees"],
+            json={
+                "chain": chain,
+                "connector": connector,
+                "tokenId": token_id,
+                "address": address
+            }
+        )
+    return resp.json()
+
+async def execute_close_position(chain, connector, token_id, address, slippage=0.5):
+    """
+    Sub-agent: Executor
+    Close position (burn all liquidity + collect fees).
+
+    Maps to: POST /connectors/uniswap/clmm/close-position
+    """
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            ENDPOINTS["close_position"],
+            json={
+                "chain": chain,
+                "connector": connector,
+                "tokenId": token_id,
+                "address": address,
+                "slippage": slippage  # %
+            }
+        )
+    return resp.json()
+
+async def execute_open_position(
+    chain, connector, token0, token1, fee,
+    tick_lower, tick_upper,
+    amount0, amount1, address, slippage=0.5
+):
+    """
+    Sub-agent: Executor
+    Open new concentrated liquidity position.
+
+    Maps to: POST /connectors/uniswap/clmm/open-position
+    """
+    # Get quote first (safe practice)
+    async with httpx.AsyncClient() as client:
+        quote = await client.get(
+            ENDPOINTS["quote_position"],
+            params={
+                "chain": chain,
+                "connector": connector,
+                "token0": token0,
+                "token1": token1,
+                "fee": fee,
+                "tickLower": tick_lower,
+                "tickUpper": tick_upper,
+                "amount0": amount0,
+                "amount1": amount1
+            }
+        )
+
+        # Execute
+        resp = await client.post(
+            ENDPOINTS["open_position"],
+            json={
+                "chain": chain,
+                "connector": connector,
+                "token0": token0,
+                "token1": token1,
+                "fee": fee,
+                "tickLower": tick_lower,
+                "tickUpper": tick_upper,
+                "amount0": amount0,
+                "amount1": amount1,
+                "address": address,
+                "slippage": slippage
+            }
+        )
+    return {
+        "quote": quote.json(),
+        "tx": resp.json()
+    }
+
+async def execute_add_liquidity(
+    chain, connector, token_id,
+    amount0, amount1, address, slippage=0.5
+):
+    """
+    Sub-agent: Executor
+    Compound fees by adding liquidity to existing position.
+
+    Maps to: POST /connectors/uniswap/clmm/add-liquidity
+    """
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            ENDPOINTS["add_liquidity"],
+            json={
+                "chain": chain,
+                "connector": connector,
+                "tokenId": token_id,
+                "amount0": amount0,
+                "amount1": amount1,
+                "address": address,
+                "slippage": slippage
+            }
+        )
+    return resp.json()
+```
+
+### Spawning an Agent for a Scoped Task
+
+UniClaw only spawns an agent when a task is discrete, bounded, and benefits from isolation.
+
+```python
+class UniClawAgent:
+    """
+    A spawned UniClaw agent — inherits all master principles.
+
+    Always scoped to ONE task. Terminates when task is complete.
+    Requires explicit user confirmation before executing transactions.
+    """
+
+    def __init__(self, task: str, context: dict):
+        """
+        Args:
+            task: Clear, bounded objective
+                  e.g. "rebalance position #42069 if risk score < 50"
+            context: Everything the agent needs (chain, address, thresholds)
+        """
+        self.task = task
+        self.context = context
+        self.findings = {}       # Populated after Analyze + Account
+        self.decision = None     # Populated after Strategize
+        self.executed = False    # Only True after user confirms
+
+    async def run(self) -> dict:
+        """
+        Execute the lifecycle for this specific task.
+        Returns findings + decision. Does NOT execute without confirmation.
+        """
+        ctx = self.context
+
+        # Phase 1: Analyze
+        pool = await analyze_pool(ctx["chain"], ctx["connector"],
+                                  ctx["token0"], ctx["token1"], ctx["fee"])
+        position = await get_position_detail(ctx["chain"], ctx["connector"],
+                                             ctx["token_id"])
+
+        # Phase 2: Account
+        account = await account_position(ctx["chain"], ctx["connector"],
+                                         ctx["token_id"], ctx["entry_price"],
+                                         ctx["token0_price_usd"])
+
+        # Phase 3: Strategize
+        decision = await strategize(account, position, pool,
+                                    ctx["volatility_annual"],
+                                    ctx["gas_cost_usd"])
+
+        # Store findings — return to master / user
+        self.findings = {
+            "pool": pool,
+            "account": account,
+            "risk_score": decision["risk_score"],
+            "action": decision["action"],
+            "reasoning": decision["reasoning"],
+        }
+        self.decision = decision
+
+        # Phase 4: WAIT — never auto-execute
+        # The master (UniClaw) presents findings to the user
+        # Execution only happens on explicit approval
+        return self.findings
+
+    async def execute_if_approved(self, user_approved: bool) -> dict:
+        """
+        Phase 4 only runs after explicit user approval.
+        """
+        if not user_approved:
+            return {"status": "cancelled", "reason": "User did not approve."}
+
+        if not self.decision or self.decision["action"] == "HOLD":
+            return {"status": "no_action", "reason": "Nothing to execute."}
+
+        ctx = self.context
+        action = self.decision["action"]
+
+        if action == "COLLECT_AND_COMPOUND":
+            tx1 = await execute_collect_fees(ctx["chain"], ctx["connector"],
+                                             ctx["token_id"], ctx["address"])
+            tx2 = await execute_add_liquidity(ctx["chain"], ctx["connector"],
+                                              ctx["token_id"],
+                                              self.findings["account"]["fees_usd"] / 2 / ctx["token0_price_usd"],
+                                              self.findings["account"]["fees_usd"] / 2,
+                                              ctx["address"])
+            self.executed = True
+            return {"status": "executed", "collect_tx": tx1, "compound_tx": tx2}
+
+        elif action == "RECENTER":
+            tx1 = await execute_close_position(ctx["chain"], ctx["connector"],
+                                               ctx["token_id"], ctx["address"])
+            new_range = self.decision["new_range"]
+            tx2 = await execute_open_position(
+                ctx["chain"], ctx["connector"],
+                ctx["token0"], ctx["token1"], ctx["fee"],
+                new_range["tickLower"], new_range["tickUpper"],
+                self.findings["account"]["position_value"] / 2 / ctx["token0_price_usd"],
+                self.findings["account"]["position_value"] / 2,
+                ctx["address"]
+            )
+            self.executed = True
+            return {"status": "executed", "close_tx": tx1, "open_tx": tx2}
+
+
+# Example: Master spawns agent only when user requests it
+async def handle_user_request(user_request: str, context: dict):
+    """
+    UniClaw master decides: handle directly OR spawn an agent.
+    """
+
+    # Simple analysis? Handle directly, no agent needed.
+    if "analyze" in user_request or "check" in user_request:
+        return await analyze_pool(**context)
+
+    # Scoped execution task? Spawn ONE agent for it.
+    if "rebalance" in user_request or "collect" in user_request:
+        agent = UniClawAgent(task=user_request, context=context)
+        findings = await agent.run()
+
+        # Present to user, wait for approval
+        print_findings(findings)
+        approved = await ask_user_confirmation(findings["action"])
+
+        return await agent.execute_if_approved(approved)
+```
+
+### Hummingbot API Integration (Higher Level)
+
+For monitoring and bot management via the Hummingbot API:
+
+```python
+from hummingbot_api_client import HummingbotAPIClient
+
+async def setup_hummingbot_client():
+    """Initialize the Hummingbot API client."""
+    client = HummingbotAPIClient(
+        base_url="http://localhost:8000",
+        username="admin",
+        password="admin"
+    )
+    return client
+
+async def get_portfolio_summary(client):
+    """Get current portfolio across all accounts."""
+    portfolio = await client.get_portfolio()
+    return portfolio
+
+async def deploy_lp_bot(client, strategy_config):
+    """Deploy a Hummingbot instance with LP strategy."""
+    bot = await client.create_bot(
+        name="uniclaw-eth-usdc",
+        strategy="dex_lp",
+        config=strategy_config
+    )
+    return bot
+```
+
+### Supported Chains via Gateway
+
+```python
+SUPPORTED_CHAINS = {
+    "ethereum": {
+        "mainnet": {"gas_estimate_usd": 15, "block_time": 12},
+        "arbitrum": {"gas_estimate_usd": 0.10, "block_time": 0.25},
+        "optimism": {"gas_estimate_usd": 0.05, "block_time": 2},
+        "base": {"gas_estimate_usd": 0.05, "block_time": 2},
+        "polygon": {"gas_estimate_usd": 0.01, "block_time": 2},
+    }
+}
+
+def get_rebalance_threshold(chain, network):
+    """Adjust rebalance threshold based on gas costs."""
+    gas = SUPPORTED_CHAINS[chain][network]["gas_estimate_usd"]
+    # Only rebalance when fees > 3x gas cost
+    return gas * 3
+```
+
+## AMM Quant Principles — The Non-Negotiables
+
+### On Math
+- **Precision always**: Decimal library, floor() for ticks, validate tickSpacing against fee tier
+- **Gas is real cost**: Rebalance threshold = 3× gas cost minimum, auto-adjusts per chain
+- **IL is real**: Always compute net profit (fees - IL - gas). Never report just APR.
+- **Risk score gates execution**: Score < 40 → escalate before any action
+
+### On Self-Learning
+- **Every backtest is a lesson.** Log outcomes in DECISIONS.md.
+- **Hypothesize → backtest → propose.** Never improve a skill without evidence.
+- **Skills map to roles, not topics.** Improve the role file, not a random concept file.
+- **Compounding knowledge works like compounding fees.** Small consistent improvements compound.
+
+### On Skill Files
+- skills/ contains roles — lp-manager, strategist, backtester, swap-arb, sentiment-analyst
+- Each role skill is independently improvable
+- Core quant math stays in SKILL.md, decision logic stays in the role skill
+- When a role doesn't exist yet → create it, don't mix it into SKILL.md
+
+---
+
+> 🦞 **UniClaw** — The AMM Quant Mastermind
+> Made with ❤️ by [@bioxbt](https://github.com/bioxbt)
+> Open Source | MIT License
+
+---
+
+> 🦞 **UniClaw** — Made with ❤️ by [@bioxbt](https://github.com/bioxbt)
+> Open Source | MIT License | Built for the DeFi community
 
 ---
 

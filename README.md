@@ -1,36 +1,55 @@
-# UniClaw Skill Repository
+# UniClaw Skills Repository
 
-This repository contains the processed contents of `uniclawskillfile.zip`, organized into a clean, maintainable layout for development, review, and distribution.
+This repository now contains the processed outputs of two skill archives:
+
+- `uniclawskillfile.zip` → core open-source UniClaw release assets
+- `multiagentskill.zip` → multi-agent operating model, identity/state files, and role skills
+
+## Skill Product Overview
+
+UniClaw is a professional Uniswap LP quant skill product with:
+
+- Core AMM knowledge base (`SKILL.md`)
+- Identity and operating ethos (`IDENTITY.md`, `SOUL.md`)
+- Session state template (`STATE.md`)
+- Role-based sub-agent skills (`skills/*.md`)
+- Supporting documentation (`docs/`)
+- Evaluation scenarios (`evals/evals.json`)
 
 ## Repository Structure
 
 ```text
 .
 ├── SKILL.md
-├── LICENSE
-├── README.md
+├── IDENTITY.md
+├── SOUL.md
+├── STATE.md
+├── skills/
+│   ├── lp-manager.md
+│   ├── strategist.md
+│   ├── backtester.md
+│   ├── swap-arb.md
+│   └── sentiment-analyst.md
 ├── docs/
 │   ├── CONTRIBUTING.md
 │   └── RELEASE_SUMMARY.md
-└── evals/
-    └── evals.json
+├── evals/
+│   └── evals.json
+├── multiagentskill.zip
+└── uniclawskillfile.zip
 ```
 
 ## What Was Processed
 
-- Extracted the skill package from `uniclawskillfile.zip`
-- Kept the primary skill definition at the repository root (`SKILL.md`)
-- Grouped supporting project docs under `docs/`
-- Grouped evaluation prompts and expectations under `evals/`
+1. Extracted and integrated multi-agent skill files from `multiagentskill.zip`.
+2. Added a dedicated `SOUL.md` to separate ethos from operating identity.
+3. Preserved and kept available source archives for traceability.
+4. Kept release/evaluation docs grouped under `docs/` and `evals/`.
 
 ## How to Use
 
-1. Review `SKILL.md` for the full skill instructions and behavior.
-2. Use `evals/evals.json` to validate quality against the provided scenarios.
-3. Read `docs/CONTRIBUTING.md` before making updates.
-4. See `docs/RELEASE_SUMMARY.md` for release highlights.
-
-## Notes
-
-- The original source archive (`uniclawskillfile.zip`) is preserved in the repo root.
-- This README is intentionally focused on repository organization and usage.
+1. Start with `STATE.md` for current session context.
+2. Read `IDENTITY.md` + `SOUL.md` for behavior and constraints.
+3. Use `SKILL.md` for core quantitative LP knowledge.
+4. Delegate role-specific tasks via files under `skills/`.
+5. Run checks using prompts in `evals/evals.json`.
