@@ -1,0 +1,69 @@
+[
+  {
+    "id": 0,
+    "prompt": "I want to provide liquidity to ETH/USDC 0.3% pool. Current price is $2,450. Historical daily volatility is 4.2%. I have 10 ETH and $24,500 USDC. Calculate the optimal tick range for 80% capital efficiency and tell me exactly how much of each token I'll need to deposit.",
+    "expectations": [
+      "Calculates tick range using volatility-based methodology",
+      "Provides specific tickLower and tickUpper values that are multiples of tickSpacing (60 for 0.3% pools)",
+      "Calculates exact token amounts needed for the range",
+      "Shows the liquidity L value",
+      "Explains what 80% capital efficiency means (price stays in range ~80% of time based on volatility)"
+    ]
+  },
+  {
+    "id": 1,
+    "prompt": "Analyze my current position:\n\nPool: ETH/USDC 0.3%\nPosition Range: tick 46080 to 50400 (approximately $2,200 to $2,700)\nCurrent Pool State:\n- Current tick: 49320\n- Current price: $2,450\n- My liquidity: 123456789012345 (L value)\n- feeGrowthGlobal0X128: 340282366920938463463374607431768211456\n- feeGrowthGlobal1X128: 680564733841876926926749214863536422912\n\nMy Position State:\n- feeGrowthInside0LastX128: 300000000000000000000000000000000000000\n- feeGrowthInside1LastX128: 600000000000000000000000000000000000000\n- tokensOwed0: 50000000000000000 (0.05 ETH)\n- tokensOwed1: 100000000 (100 USDC)\n\nEntry price was $2,300. Historical 30-day volatility is 42% annualized. Should I reallocate? Assume gas costs $15 on Ethereum mainnet.",
+    "expectations": [
+      "Calculates unclaimed fees from feeGrowthInside formula",
+      "Computes impermanent loss from entry price to current price",
+      "Determines position health (distance from range boundaries)",
+      "Calculates probability of exiting range (7-day and 30-day)",
+      "Computes Value at Risk (VaR) for the position",
+      "Provides boundary proximity analysis in standard deviations",
+      "Calculates comprehensive risk score (0-100)",
+      "Evaluates whether fees justify gas costs for reallocation",
+      "Provides clear YES/NO recommendation with reasoning",
+      "Shows net profit calculation (fees - IL - gas)",
+      "Includes Monte Carlo simulation results if available"
+    ]
+  },
+  {
+    "id": 2,
+    "prompt": "Generate the exact transaction calldata for me to:\n1. Collect all accumulated fees from position tokenId 42069\n2. Compound those fees back into the same position\n\nSend collected fees to 0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb5. Use 0.5% slippage protection. Deadline should be 5 minutes from now. Assume current block timestamp is 1704067200.",
+    "expectations": [
+      "Generates collect() calldata with correct parameters",
+      "Uses MAX_UINT128 (2**128-1) for amount0Max and amount1Max to collect all fees",
+      "Generates increaseLiquidity() calldata for compounding",
+      "Calculates amount0Min and amount1Min with 0.5% slippage",
+      "Sets deadline to 1704067200 + 300 = 1704067500",
+      "Provides estimated gas costs for each transaction",
+      "Warns about needing token approvals"
+    ]
+  },
+  {
+    "id": 3,
+    "prompt": "I'm running a range order strategy (limit order using concentrated liquidity). I want to buy ETH at $2,200 using 50,000 USDC. Current price is $2,450.\n\nWhat tick range should I use for a single-sided position? Calculate:\n1. The exact tick range\n2. How much liquidity L this represents\n3. When price hits $2,200, how much ETH will I get?\n4. How narrow can I make the range while still getting meaningful execution?",
+    "expectations": [
+      "Recognizes this as a limit order (single-sided LP position below current price)",
+      "Calculates tick for target price ($2,200)",
+      "Recommends narrow range (e.g., 1 tick wide or small number of ticks) for limit order behavior",
+      "Calculates liquidity L from 50,000 USDC and the tick range",
+      "Computes expected ETH received when price crosses the range",
+      "Explains that narrower range = less slippage but requires faster withdrawal",
+      "Mentions need to withdraw liquidity once price crosses to 'fill' the order"
+    ]
+  },
+  {
+    "id": 4,
+    "prompt": "Compare two reallocation strategies for my ETH/USDC position:\n\nStrategy A: Collect and compound fees every time they hit 3% of position value\nStrategy B: Collect and compound fees every time they hit 7% of position value\n\nPosition size: $50,000\nAverage daily fees: $45\nGas cost per reallocation: $18 (Ethereum L1)\n\nWhich strategy is more profitable over 90 days?",
+    "expectations": [
+      "Calculates how often Strategy A triggers (50000 * 0.03 / 45 = every ~33 days)",
+      "Calculates how often Strategy B triggers (50000 * 0.07 / 45 = every ~78 days)",
+      "Computes total fees collected over 90 days",
+      "Subtracts gas costs (Strategy A: ~2-3 transactions, Strategy B: ~1 transaction)",
+      "Accounts for compounding effect (reinvested fees earn more fees)",
+      "Provides net profit comparison",
+      "Recommends the more profitable strategy with reasoning"
+    ]
+  }
+]
