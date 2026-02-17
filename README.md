@@ -2,8 +2,6 @@
 
 This repository now contains the processed outputs of two skill archives:
 
-- `uniclawskillfile.zip` → core open-source UniClaw release assets
-- `multiagentskill.zip` → multi-agent operating model, identity/state files, and role skills
 
 ## Skill Product Overview
 
