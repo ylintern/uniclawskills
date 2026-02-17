@@ -1,18 +1,19 @@
 # UniClaw Skills Repository
 
-This repository now contains the processed outputs of two skill archives:
-
+UniClaw is a structured skill repository for Uniswap LP research, strategy design, and multi-agent execution workflows.
 
 ## Skill Product Overview
 
-UniClaw is a professional Uniswap LP quant skill product with:
+This repository includes:
 
-- Core AMM knowledge base (`SKILL.md`)
+- Core AMM/LP knowledge base (`SKILL.md`)
 - Identity and operating ethos (`IDENTITY.md`, `SOUL.md`)
 - Session state template (`STATE.md`)
-- Role-based sub-agent skills (`skills/*.md`)
-- Supporting documentation (`docs/`)
+- Role-based specialist agents (`skills/*.md`)
+- Maintainer documentation (`docs/`)
+- Workshop playbooks (`docs/workshops/`)
 - Evaluation scenarios (`evals/evals.json`)
+- Visual asset (`assets/cover.jpg`)
 
 ## Repository Structure
 
@@ -30,19 +31,22 @@ UniClaw is a professional Uniswap LP quant skill product with:
 │   └── sentiment-analyst.md
 ├── docs/
 │   ├── CONTRIBUTING.md
-│   └── RELEASE_SUMMARY.md
+│   ├── RELEASE_SUMMARY.md
+│   └── workshops/
+│       ├── WORKSHOP_01.md
+│       └── WORKSHOP_02.md
 ├── evals/
 │   └── evals.json
-├── multiagentskill.zip
-└── uniclawskillfile.zip
+└── assets/
+    └── cover.jpg
 ```
 
-## What Was Processed
+## Repository Cleanup and Refactor
 
-1. Extracted and integrated multi-agent skill files from `multiagentskill.zip`.
-2. Added a dedicated `SOUL.md` to separate ethos from operating identity.
-3. Preserved and kept available source archives for traceability.
-4. Kept release/evaluation docs grouped under `docs/` and `evals/`.
+- Removed obsolete uploaded archive files (`multiagentskill.zip`, `uniclawskillfile.zip`).
+- Reorganized workshop material under `docs/workshops/`.
+- Moved loose image content into `assets/`.
+- Updated this README to match the current canonical layout.
 
 ## How to Use
 
